@@ -1,8 +1,7 @@
 /*
-	graph
-	This problem requires you to implement a basic graph functio
+    graph
+    This problem requires you to implement a basic graph functio
 */
-// I AM NOT DONE
 
 use std::collections::{HashMap, HashSet};
 use std::fmt;
@@ -29,19 +28,55 @@ impl Graph for UndirectedGraph {
         &self.adjacency_table
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
-        //TODO
+        let (from, to, weight) = edge;
+
+        // 确保两个节点都存在
+        self.add_node(from);
+        self.add_node(to);
+
+        // 无向图：在两个节点的邻接列表中都添加对方
+        self.adjacency_table_mutable()
+            .get_mut(from)
+            .unwrap()
+            .push((to.to_string(), weight));
+
+        self.adjacency_table_mutable()
+            .get_mut(to)
+            .unwrap()
+            .push((from.to_string(), weight));
     }
 }
 pub trait Graph {
     fn new() -> Self;
     fn adjacency_table_mutable(&mut self) -> &mut HashMap<String, Vec<(String, i32)>>;
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>>;
+    // 添加节点：如果节点不存在则插入一个空的邻接列表
     fn add_node(&mut self, node: &str) -> bool {
-        //TODO
-		true
+        if self.contains(node) {
+            false
+        } else {
+            self.adjacency_table_mutable()
+                .insert(node.to_string(), Vec::new());
+            true
+        }
     }
+
+    // 添加边：这是最核心的方法
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
-        //TODO
+        let (from, to, weight) = edge;
+
+        // 确保两端节点都存在
+        self.add_node(from);
+        self.add_node(to);
+
+        // 在 from 的列表中添加 to
+        self.adjacency_table_mutable()
+            .get_mut(from)
+            .unwrap()
+            .push((to.to_string(), weight));
+
+        // 如果是无向图，通常还需要添加 to 到 from 的反向边
+        // 注意：如果你需要更严谨的实现，这里可以根据具体图类型决定是否添加双向边
     }
     fn contains(&self, node: &str) -> bool {
         self.adjacency_table().get(node).is_some()
